@@ -1,0 +1,14 @@
+{
+	"DB_PATH": "[database-path]",
+	"SMTP_SERVER": "[smtp-server-name",
+	"SMTP_PORT": 587,
+	"SMPT_SECURE": false,
+	"SMTP_ACCOUNT_USER": "[user account name]",
+	"SMTP_ACCOUNT_PASSWORD":"[user account password]",
+
+	"MAIL_FROM": "\"Pasori System\" <xxxx@xxxx.com>",
+	"MAIL_SUBJECT_IN": "入室連絡(Pasori)",
+	"MAIL_SUBJECT_OUT": "退室連絡(Pasori)",
+	"MAIL_TEXT_IN": "入室",
+	"MAIL_TEXT_OUT": "退室"
+}
