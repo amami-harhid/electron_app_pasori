@@ -31,7 +31,7 @@ function createWindow() {
     });
 
     mainWindow.loadFile("index.html");
-    //mainWindow.webContents.openDevTools(); // 開発者ツールを表示
+    mainWindow.webContents.openDevTools(); // 開発者ツールを表示
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     //mainWindow.setIgnoreMouseEvents(true, { forward: true }); // マウス無効にすると閉じることができない。
     mainWindow.moveTop();
@@ -44,10 +44,6 @@ function createWindow() {
 app.whenReady().then(async () => {
 
     createWindow();
-    const rows = await pasoriDb.selectCardsAll();
-    if(rows.length==0){
-        await pasoriDb.insertData(0, "012e4cd8a3179d43", "Test Taro", "dummy", false);
-    }
 
     // メインへのハンドラー定義
     handle_db_methods();
@@ -64,14 +60,17 @@ app.whenReady().then(async () => {
             createWindow();
         }
     });
-    //コメントはずすとテストデータで初期化する
-    //initDb();
+    // Config TEST_DATA = trueのときテストデータで初期化する
+    initDb();
 });
 
 // 全ウインドウを閉じた時にアプリを終了する (Windows & Linux)
 app.on("window-all-closed", () => {
     pasoriDb.dbClose();
-    if (process.platform !== "darwin") app.quit();
+    if (process.platform !== "darwin") {
+        console.log("app.quit()")
+        app.quit();
+    } 
 });
 
 const pasori_ready = (device_name) =>{

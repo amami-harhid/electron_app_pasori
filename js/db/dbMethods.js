@@ -5,10 +5,10 @@ import sqlite3 from 'sqlite3';
 const DB_PATH = "DB_PATH";
 const db_path = (ApConfig.has(DB_PATH))?
     ApConfig.get(DB_PATH): app.getPath('userData');
+console.log("db_path=",db_path)
+const db = new sqlite3.Database(`${db_path}/pasori_card.db`);
 
-const db = new sqlite3.Database(`${db_path}/Database/my_database.db`);
-
-
+const testData = ApConfig.get("TEST_DATA");
 
 const createCards = (eve)=>{
     return new Promise((resolve, reject) => {
@@ -147,11 +147,13 @@ export const handle_db_methods = ()=>{
     }
 };
 
+
 export const initDb = async () => {
+    if( testData === false) {
+        return;
+    }
     await dropCards();
     await createCards();
-    //012e4cd8a3179d43
-    //012e4ce15c951d76
     await insertData(null, 
         '012e4cd8a3179d43',
         '山田 太郎',
@@ -176,6 +178,5 @@ export const initDb = async () => {
         '',
         false,
     );
-
 
 }
