@@ -8,7 +8,8 @@ const db_path = (ApConfig.has(DB_PATH))?
 console.log("db_path=",db_path)
 const db = new sqlite3.Database(`${db_path}/pasori_card.db`);
 
-const testData = ApConfig.get("TEST_DATA");
+const TEST_DATA = "TEST_DATA";
+const testData = (ApConfig.has(TEST_DATA))?ApConfig.get(TEST_DATA):false;
 
 const createCards = (eve)=>{
     return new Promise((resolve, reject) => {
@@ -31,7 +32,6 @@ const createCards = (eve)=>{
     })
 };
 const selectCardsAll = (eve) => {
-    console.log("dbmethods selectCardsAll");
     return new Promise((resolve, reject) => {
         const sql = "SELECT * FROM cards;";
         db.all(sql, [], (err, rows)=>{
