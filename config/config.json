@@ -1,12 +1,14 @@
 {
-	"DB_PATH": "[database-path]",
-	"SMTP_SERVER": "[smtp-server-name",
+	"PAGE_TITLE": "入退室チェッカー(Pasori)",
+
+	"DB_PATH": "E:/squirrel.windows/x64",
+	"SMTP_SERVER": "smtp.gmail.com",
 	"SMTP_PORT": 587,
 	"SMPT_SECURE": false,
-	"SMTP_ACCOUNT_USER": "[user account name]",
-	"SMTP_ACCOUNT_PASSWORD":"[user account password]",
+	"SMTP_ACCOUNT_USER": "iti.haranaga",
+	"SMTP_ACCOUNT_PASSWORD":"gvag drrt nbiy oqbh",
 
-	"MAIL_FROM": "\"Pasori System\" <xxxx@xxxx.com>",
+	"MAIL_FROM": "\"Pasori System\" <pasori@mirai-logic.com>",
 	"MAIL_SUBJECT_IN": "入室連絡(Pasori)",
 	"MAIL_SUBJECT_OUT": "退室連絡(Pasori)",
 	"MAIL_TEXT_IN": "入室",

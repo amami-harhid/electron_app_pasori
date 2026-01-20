@@ -1,7 +1,8 @@
 # Electron_app_pasori config file
 
-## Installation location
+## Destination
 
-Electron app 
-
-# 
+To Electron app userData 
+```
+app.getPath('userData');
+```
