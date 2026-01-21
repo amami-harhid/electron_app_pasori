@@ -1,17 +1,18 @@
 import nodemailer from 'nodemailer';
 import { ipcMain } from 'electron';
 import { ApConfig } from '../conf.js';
+import logger from 'electron-log';
 
 const SMTP_SERVER = (ApConfig.has("SMTP_SERVER"))?
         ApConfig.get("SMTP_SERVER"):"";
-console.log(SMTP_SERVER);
+//console.log(SMTP_SERVER);
 const SMTP_PORT = (ApConfig.has("SMTP_PORT"))?
         ApConfig.get("SMTP_PORT"):456; // 465
-console.log(SMTP_PORT);
+//console.log(SMTP_PORT);
 // trueの場合はSSL/TLSを使用
 const SMPT_SECURE = (ApConfig.has("SMPT_SECURE"))?
         ApConfig.get("SMPT_SECURE"):true;
-console.log(SMPT_SECURE);
+//console.log(SMPT_SECURE);
 // user は googleアカウントの@の左側です
 // pass は googleアカウント管理画面内で
 // 二段階認証有効としたうえで、同画面内で
@@ -19,10 +20,10 @@ console.log(SMPT_SECURE);
 // Googleアカウントのパスワードではありません。
 const SMTP_ACCOUNT_USER = (ApConfig.has("SMTP_ACCOUNT_USER"))?
         ApConfig.get("SMTP_ACCOUNT_USER"):"";
-console.log(SMTP_ACCOUNT_USER);
+//console.log(SMTP_ACCOUNT_USER);
 const SMTP_ACCOUNT_PASSWORD = (ApConfig.has("SMTP_ACCOUNT_PASSWORD"))?
         ApConfig.get("SMTP_ACCOUNT_PASSWORD"):"";
-console.log(SMTP_ACCOUNT_PASSWORD);
+//console.log(SMTP_ACCOUNT_PASSWORD);
 
 // 送信元
 const MAIL_FROM = '"Pasori System" <pasori@mirai-logic.com>'
@@ -43,10 +44,10 @@ const MAIL_TEXT = {
 
 const SEND_MAILER = async ( eve,
     mail_to, mail_subject, text, name ) =>{
-    console.log('mail_to=',mail_to, 
-        'mail_subject=',mail_subject, 
-        'text=',text, 
-        'name=',name)
+    //console.log('mail_to=',mail_to, 
+    //    'mail_subject=',mail_subject, 
+    //    'text=',text, 
+    //    'name=',name)
     // SMTPサーバーの設定
     let transporter = nodemailer.createTransport({
         host: SMTP_SERVER, 
@@ -68,9 +69,11 @@ const SEND_MAILER = async ( eve,
 
     try {
         let info = await transporter.sendMail(mailOptions);
-        console.log("メールが送信されました:", info.messageId);
+        console.log("メールが送信されました:", mailOptions);
+        logger.info("メールが送信されました:", mailOptions)
     } catch (error) {
         console.error("エラーが発生しました:", error);
+        logger.error("エラーが発生しました:", error)
     }
 }
 

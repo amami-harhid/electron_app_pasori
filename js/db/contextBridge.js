@@ -5,6 +5,7 @@ const bridgeExposeInMainWorld = () => {
     contextBridge.exposeInMainWorld('pasoriDb', {
         createCards: async () => ipcRenderer.invoke('createCards'),    //データベース作成
         selectCardsAll: async () => ipcRenderer.invoke('selectCardsAll'),  //SELECT *
+        selectCardsByIdm: async () => ipcRenderer.invoke('selectCardsByIdm'),
         insertData: async (idm, name, mail, in_room) => 
             ipcRenderer.invoke('insertData', idm, name, mail, in_room), //データを挿入
         updateInRoom: async (in_room, idm) =>

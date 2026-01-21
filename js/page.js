@@ -7,3 +7,8 @@ export const handle_page_methods = () => {
         return PAGE_TITLE;
     });
 }
+export const handle_page_menu = () => {
+    ipcMain.handle("page:menu_manager", ()=>{
+        ApConfig.save('MANAGER', true);
+    });
+}

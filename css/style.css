@@ -7,6 +7,7 @@
     background-image: url('../assets/pngtree-website-elegant-style-background-picture-image_2443512.jpg');
     z-index: -1; /* 背景として配置 */
     opacity: 0.5;
+    pointer-events: none;
 }
 .card {
     width: 100%;
@@ -42,6 +43,21 @@ h1 {
     justify-content: center; /* 中央寄せ用 */
     align-items: center; /* 中央寄せ用 */
 }
+.modal_manager {
+    opacity: 1.0;
+    display: none; /* 初期状態では非表示 */
+    position: fixed; /* 画面に固定 */
+    z-index: 1; /* 他の要素より手前に表示 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* 内容が多い場合にスクロール可能にする */
+    background-color: rgba(0, 0, 0, 0.7); /* 背景を暗くする */
+    justify-content: center; /* 中央寄せ用 */
+    align-items: center; /* 中央寄せ用 */
+    pointer-events: none;
+}
 
 .modal-content {
     background-color: #fefefe;
@@ -53,4 +69,35 @@ h1 {
     border-radius: 8px;
     position: relative;
     box-shadow: 0 5px 15px rgba(0.7,0.7,0.7,0.1);
+}
+input {
+    z-index: 10;
+}
+.card_enable {
+    pointer-events:auto;
+
+}
+
+#confirm{
+    display: none;
+    position: fixed;
+    background: rgba(0,0,0,.3);
+    top:0;
+    left:0;
+    bottom: 0;
+    right: 0;
+    z-index: 100;
+}
+#confirm div{
+    border: 5px double purple;
+    box-shadow: 5px 5px 3px rgba(0,0,0,.2);
+    border-radius: 5%;
+    padding: 5px;
+    background: pink;
+    position: absolute;
+    width: 200px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }

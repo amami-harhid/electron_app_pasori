@@ -1,6 +1,6 @@
 {
   "name": "electron_app",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "main.js",
   "type": "module",
   "scripts": {
@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@pokusew/pcsclite": "^0.6.0",
+    "electron-log": "^5.4.3",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^11.0.2",
     "googleapis": "^170.1.0",

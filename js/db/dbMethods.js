@@ -44,7 +44,6 @@ const selectCardsAll = (eve) => {
     })
 };
 const selectCardsWithCondition = (eve, condition) => {
-    console.log("dbmethods selectCardsAll");
     return new Promise((resolve, reject) => {
         let sql = "SELECT * FROM cards";
         if(condition && typeof condition === 'string'){
@@ -52,6 +51,18 @@ const selectCardsWithCondition = (eve, condition) => {
         }
         sql += ";";
         db.all(sql, [], (err, rows)=>{
+            if(err) {
+                return reject(err);
+            }
+            resolve(rows);
+        })
+    })
+};
+
+const selectCardsByIdm = (eve, idm) => {
+    return new Promise((resolve, reject) => {
+        let sql = "SELECT * FROM cards WHERE idm = ?";
+        db.all(sql, [idm], (err, rows)=>{
             if(err) {
                 return reject(err);
             }
@@ -67,6 +78,21 @@ const updateInRoom = (eve, idm, in_room) => {
             date_time = datetime("now", "localtime") 
             WHERE idm = ?;`, 
             [in_room, idm], 
+            err => {
+                if (err) reject(err);
+                resolve(true);
+            }
+        )
+    })
+};
+const update = (eve, idm, name, mail) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `UPDATE cards 
+            SET name = ?, mail = ?, in_room = false,
+            date_time = datetime("now", "localtime") 
+            WHERE idm = ?;`, 
+            [name, mail, idm], 
             err => {
                 if (err) reject(err);
                 resolve(true);
@@ -134,6 +160,8 @@ export const pasoriDb = {
     createCards: createCards,
     selectCardsAll: selectCardsAll,
     selectCardsWithCondition: selectCardsWithCondition,
+    selectCardsByIdm: selectCardsByIdm,
+    update: update,
     updateInRoom: updateInRoom,
     insertData: insertData,
     deleteCards: deleteCards,

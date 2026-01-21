@@ -1,13 +1,42 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
+import { menu } from './js/menu.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import logger from 'electron-log';
 import {Reader} from "./card.js"
 import {handle_mail_methods } from './js/mail/sendMail.js';
 import {pasoriDb, handle_db_methods} from './js/db/dbMethods.js'
 import {handle_page_methods} from './js/page.js';
 import {initDb} from './js/db/dbMethods.js'
-import {ApConfig} from './js/conf.js';
-
+//import {ApConfig} from './js/conf.js';
+import Startup from 'electron-squirrel-startup';
+if(Startup) {
+    logger.debug('electron-squirrel-startup')
+    app.quit();
+}
+const pasori_ready = (device_name) =>{
+    //console.log('pasori_ready', device_name)
+}
+const pasori_card_touch = (idm) =>{
+    //console.log('pasori_card_touch')
+    const browserWindow = BrowserWindow.getFocusedWindow();
+    browserWindow.webContents.send('card-message', idm);
+}
+const pasori_card_remove = () =>{
+    //console.log('pasori_card_remove')
+    const browserWindow = BrowserWindow.getFocusedWindow();
+    browserWindow.webContents.send('card-message', "");
+}
+// Pasori Reader
+// app.on の中で実行すると nfc.on を検知しない
+const readerReady = function() {
+    //await waitForCondition(()=> Reader.win != null, 50, 5000);
+    Reader.ready(
+        pasori_ready,
+        pasori_card_touch,
+        pasori_card_remove
+    )
+}
 
 /** ブラウザウインドウ作成 */
 function createWindow() {
@@ -27,77 +56,85 @@ function createWindow() {
             // 追加の権限が必要な操作は専用の通信チャネルを使用してメインプロセスに委譲されます
             sandbox: false 
         },
-        autoHideMenuBar: true, // メニュー非表示
+        autoHideMenuBar: false, // true:メニュー非表示
     });
 
+    Menu.setApplicationMenu(menu);
+
     mainWindow.loadFile("index.html");
-    //mainWindow.webContents.openDevTools(); // 開発者ツールを表示
+    mainWindow.webContents.openDevTools(); // 開発者ツールを表示
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     //mainWindow.setIgnoreMouseEvents(true, { forward: true }); // マウス無効にすると閉じることができない。
     mainWindow.moveTop();
     Reader.win = mainWindow;
-    
     return mainWindow;
 };
 
+// 二重起動禁止
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
 
-app.whenReady().then(async () => {
+    app.quit();
+    
+}else{
 
-    createWindow();
+    app.whenReady().then(async () => {
 
-    // メインへのハンドラー定義
-    handle_db_methods();
-    handle_mail_methods();
-    handle_page_methods();
+        createWindow();
+
+        // メインへのハンドラー定義
+        handle_db_methods();
+        handle_mail_methods();
+        handle_page_methods();
 
 
-    //win.webContents.send('test-message', 'ponpon');
-    app.on("activate", () => {
-        // 開いたウインドウがない場合にウインドウを開く (macOS)
-        // activateイベントは、macOSでアプリケーションがアクティブになったときに発生します。
-        // 例えば、Dockアイコンをクリックしたときなどです。
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
+        //win.webContents.send('test-message', 'ponpon');
+        app.on("activate", () => {
+            // 開いたウインドウがない場合にウインドウを開く (macOS)
+            // activateイベントは、macOSでアプリケーションがアクティブになったときに発生します。
+            // 例えば、Dockアイコンをクリックしたときなどです。
+            if (BrowserWindow.getAllWindows().length === 0) {
+                createWindow();
+            }
+        });
+        // Config TEST_DATA = trueのときテストデータで初期化する
+        initDb();
+
+
+
+    });
+
+    // 全ウインドウを閉じた時にアプリを終了する (Windows & Linux)
+    app.on("window-all-closed", () => {
+        pasoriDb.dbClose();
+        if (process.platform !== "darwin") {
+            console.log("app.quit()")
+            logger.info('app.quit()');
+            app.quit();
         }
     });
-    // Config TEST_DATA = trueのときテストデータで初期化する
-    initDb();
-});
 
-// 全ウインドウを閉じた時にアプリを終了する (Windows & Linux)
-app.on("window-all-closed", () => {
-    pasoriDb.dbClose();
-    if (process.platform !== "darwin") {
-        console.log("app.quit()")
-        app.quit();
-    } 
-});
+    process.on("uncaughtException", (event)=>{
+            console.log("uncaughtException")
+        logger.error(event);
+        //UnhandledPromiseRejectionWarning
+    });
 
-const pasori_ready = (device_name) =>{
-    //console.log('pasori_ready', device_name)
-}
-const pasori_card_touch = (idm) =>{
-    //console.log('pasori_card_touch')
-    const targetWin = Reader.win
-    targetWin.webContents.send('card-message', idm);
-}
-const pasori_card_remove = () =>{
-    //console.log('pasori_card_remove')
-    const targetWin = Reader.win
-    targetWin.webContents.send('card-message', "");
-}
+    process.on("unhandledRejection", (event)=>{
+        console.log("unhandledRejection")
+        logger.error(event);
+            //UnhandledPromiseRejectionWarning
+    });
 
-// Pasori Reader
-// app.on の中で実行すると nfc.on を検知しない
-const readerReady = function() {
-    //await waitForCondition(()=> Reader.win != null, 50, 5000);
-    Reader.ready(
-        pasori_ready,
-        pasori_card_touch,
-        pasori_card_remove
-    )
+    readerReady();
+
+
 }
 
 
-readerReady();
+
+
+
+
+
 
