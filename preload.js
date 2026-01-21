@@ -147,6 +147,7 @@ window.addEventListener("DOMContentLoaded", () => {
             await ipcRenderer.invoke('deleteCards',idm);
             card_name.setAttribute("value", "");
             card_mail.setAttribute("value", "");
+            card_delete.style.display = "none";
         }
         card_name.disable = false;
         card_mail.disable = false;
@@ -261,6 +262,7 @@ window.addEventListener("DOMContentLoaded", () => {
         span_card_idm.innerHTML = idm;
         const rows = await ipcRenderer.invoke('selectCardsWithCondition', `idm = '${idm}'`);
         if(rows.length == 0){
+            card_delete.style.display = "none";
             card_name.setAttribute('value', "");
             card_mail.setAttribute('value', "");
             //card_name.value = "";
@@ -271,6 +273,7 @@ window.addEventListener("DOMContentLoaded", () => {
             card_mail.readOnly = false;
 
         }else{
+            card_delete.style.display = "inline-block";
             const card = rows[0];
             card_name.setAttribute('value', card.name);
             card_mail.setAttribute('value', card.mail);

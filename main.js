@@ -62,7 +62,7 @@ function createWindow() {
     Menu.setApplicationMenu(menu);
 
     mainWindow.loadFile("index.html");
-    mainWindow.webContents.openDevTools(); // 開発者ツールを表示
+    //mainWindow.webContents.openDevTools(); // 開発者ツールを表示
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     //mainWindow.setIgnoreMouseEvents(true, { forward: true }); // マウス無効にすると閉じることができない。
     mainWindow.moveTop();

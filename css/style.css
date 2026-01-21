@@ -7,7 +7,6 @@
     background-image: url('../assets/pngtree-website-elegant-style-background-picture-image_2443512.jpg');
     z-index: -1; /* 背景として配置 */
     opacity: 0.5;
-    pointer-events: none;
 }
 .card {
     width: 100%;
@@ -56,7 +55,6 @@ h1 {
     background-color: rgba(0, 0, 0, 0.7); /* 背景を暗くする */
     justify-content: center; /* 中央寄せ用 */
     align-items: center; /* 中央寄せ用 */
-    pointer-events: none;
 }
 
 .modal-content {
@@ -70,14 +68,6 @@ h1 {
     position: relative;
     box-shadow: 0 5px 15px rgba(0.7,0.7,0.7,0.1);
 }
-input {
-    z-index: 10;
-}
-.card_enable {
-    pointer-events:auto;
-
-}
-
 #confirm{
     display: none;
     position: fixed;
