@@ -40,5 +40,36 @@
         <button id="confirm-yes">はい</button><button id="confirm-no">いいえ</button>
       </div>
     </div>
+    <div id="pasoriModal_members" class="modal_members">
+      <div id="pasoriModal_members_content" class="modal-content">
+        <h2>メンバー管理</h2>
+        <div>
+          <table id="members" class="membersTable">
+            <tbody>
+            <th>
+              <th>FCNO</th>
+              <th>名前</th>
+              <th>カナ</th>
+              <th>MAIL</th>
+              <th>在室</th>
+              <th>CARD</th>
+            </th>              
+            </tbody>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="pasoriModal_members_edit_content" class="modal-content">
+        <h1>編集</h1>
+        <div>
+          <p>名前&nbsp;<input id="member_edit_name" type="text" value="" size="30">
+          <p>カナ&nbsp;<input id="member_edit_kana" type="text" value="" size="30">
+          <p>MAIL&nbsp;<input id="member_edit_mail" type="text" value="" size="30">
+        </div>
+        <div>
+          <p><button id="member_edit_cancel">中止</button>&nbsp;<button id="member_edit_update">更新</button>&nbsp;<button id="member_edit_remove">削除</button></p>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

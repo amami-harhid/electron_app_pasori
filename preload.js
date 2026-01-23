@@ -91,6 +91,8 @@ window.addEventListener("DOMContentLoaded", () => {
     modal.style.display = 'none';
     const modalManager = document.getElementById('pasoriModal_manager')
     modalManager.style.display = 'none';
+    const modalMembers = document.getElementById('pasoriModal_members');
+    modalMembers.style.display = 'none';
     const statusDiv = document.getElementById('statusDiv'); 
     const card_manager = document.getElementById('card_manager');
     card_manager.style.display = 'none';
@@ -105,6 +107,7 @@ window.addEventListener("DOMContentLoaded", () => {
     //const card_mail = document.getElementById('card_mail');
     const fcno_select = document.getElementById('fcno-select');
     const card_message_span = document.getElementById('card_message_span');
+    const memberTable = document.getElementById('members');
 
     const alt = document.getElementById("confirm");
     const p = alt.querySelector("p");
@@ -112,6 +115,10 @@ window.addEventListener("DOMContentLoaded", () => {
     const btn_no = alt.querySelector("#confirm-no");
     const card_empty_idm = document.getElementById('card_empty_idm');
     const card_has_idm = document.getElementById('card_has_idm');
+
+    const pasoriModal_members_content = document.getElementById('pasoriModal_members_content');
+    
+    const pasoriModal_members_edit_content = document.getElementById('pasoriModal_members_edit_content');
 
     const myConfirm = (text) => {
         p.textContent = text;
@@ -257,8 +264,11 @@ window.addEventListener("DOMContentLoaded", () => {
                     const mail_subject = MAILER_CONFIG.MAIL_SUBJECT.OUT;
                     const name = card.name;
                     const text = MAILER_CONFIG.MAIL_TEXT.OUT;
+                    // 意図的にawaitをつけない
                     ipcRenderer.invoke('mailer:send_mail', mail_to, mail_subject, text, name)
                 }
+                // 意図的にawaitをつけない
+                ipcRenderer.invoke('outRoomHistoriesByIdm', idm);
             }else{
                 // 入室処理
                 status = true;
@@ -268,8 +278,11 @@ window.addEventListener("DOMContentLoaded", () => {
                     const mail_subject = MAILER_CONFIG.MAIL_SUBJECT.IN;
                     const name = card.name;
                     const text = MAILER_CONFIG.MAIL_TEXT.IN;
+                    // 意図的にawaitをつけない
                     ipcRenderer.invoke('mailer:send_mail', mail_to, mail_subject, text, name)
                 }
+                // 意図的にawaitをつけない
+                ipcRenderer.invoke('inRoomHistoriesByIdm', idm);
             }
             const p_tag = document.createElement('p');
             const p_tag2 = document.createElement('p');
@@ -365,51 +378,142 @@ window.addEventListener("DOMContentLoaded", () => {
 
     }
     // 受信設定
-    ipcRenderer.on('card-message', async (_, idm)=>{ 
+    ipcRenderer.on('card-message', async (_, idm)=>{
         // listenerの第一引数は event:IpcRenderEventだが未使用なので _ としている。
         // DB作成( ここでないとwindow.sqlite3が使えない！)
         if(modalManager.style.display == 'block'){
-            ic_card_manager(idm);
+            if(nowAppManagerHandling===true){
+                ic_card_manager(idm);
+            }
         }else{
-            ic_card_general(idm);
+            if(nowAppGeneralHandling===true){
+                ic_card_general(idm);
+            }
         }
 
     })
-    
-    ipcRenderer.on('app-manager-handling', async (_, managing)=>{ 
+    let nowAppManagerHandling = false;
+    let nowAppGeneralHandling = false; // 初期値
+    let nowAppMembersHandling = false;
+    ipcRenderer.on('app-manager-handling', async ()=>{ 
+        nowAppManagerHandling = true;
+        nowAppGeneralHandling = false;
+        nowAppMembersHandling = false;
+        modal.style.display = 'none';
+        modalManager.style.display = 'block';
+        modalMembers.style.display = 'none';
+    })
+    ipcRenderer.on('app-general-handling', async ()=>{ 
+        nowAppManagerHandling = false;
+        nowAppGeneralHandling = true;
+        nowAppMembersHandling = false;
         //console.log('managing=', managing);
-        if(managing===true){
-            modal.style.display = 'none';
-            modalManager.style.display = 'block';
-        }else{
-            modal.style.display = 'none';
-            modalManager.style.display = 'none';
+        modal.style.display = 'none';
+        modalManager.style.display = 'none';
+        modalMembers.style.display = 'none';
+    })
+    ipcRenderer.on('app-general-stop-handling', async ()=>{ 
+        nowAppManagerHandling = false;
+        nowAppGeneralHandling = false;
+        nowAppMembersHandling = false;
+        //console.log('managing=', managing);
+        modal.style.display = 'none';
+        modalManager.style.display = 'none';
+        modalMembers.style.display = 'none';
+    })
+    ipcRenderer.on('app-members-handling', async ()=>{ 
+        nowAppManagerHandling = false;
+        nowAppGeneralHandling = false;
+        nowAppMembersHandling = true;
+        //console.log('managing=', managing);
+        modal.style.display = 'none';
+        modalManager.style.display = 'none';
+        modalMembers.style.display = 'block';
+        pasoriModal_members_content.style.display = 'block';
+        pasoriModal_members_edit_content.style.display = 'none';
+        const cards = await appCardHandler.getAll();
+        
+        const memberRowsBody = memberTable.tBodies[1];
+        memberRowsBody.innerHTML = ''; // 子要素TRを全削除
+        let rowIdx = 0
+        for(const card of cards) {
+            rowIdx+= 1;
+            const row = memberRowsBody.insertRow(-1);
+            let colomnIdx = 0
+            // NO
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = String(rowIdx).padStart(4,'0');
+            }
+            // FCNO
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = card.fcno;
+                cell.classList.add('CELL_FCNO');
+            }
+            // 名前
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = card.name;
+            }
+            // カナ
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = card.kana;
+            }
+            // MAIL
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = card.mail;
+            }
+            // 在室
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = (card.in_room===1)?"在室":"";
+            }
+            // CARD IDM
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = card.idm;
+            }
         }
     })
+    memberTable.addEventListener('click', async (e)=>{
+        if(e) {
+            const target = e.target;
+            if(target.tagName === 'TD' && target.classList.contains('CELL_FCNO')){
+                const fcno = target.innerHTML;
+                await editCard(fcno);
+            }
+        }
+    });
+    const editCard = async (fcno) => {
+        const targetCardRows = await ipcRenderer.invoke('selectCardsByFcno', fcno);
+        if(targetCardRows.length > 0){
+            pasoriModal_members_content.style.display = 'none';
+            pasoriModal_members_edit_content.style.display = 'block';
+            const card = targetCardRows[0];
+            console.log(card);
+            const member_edit_name = document.getElementById('member_edit_name');
+            const member_edit_kana = document.getElementById('member_edit_kana');
+            const member_edit_mail = document.getElementById('member_edit_mail');
+            member_edit_name.setAttribute('value', card.name);
+            member_edit_kana.setAttribute('value', card.kana);
+            member_edit_mail.setAttribute('value', card.mail);
+            
 
+        }
+    }
 });
 
-const entringCards = {}
-class Card {
-    idm = ''
-    date = ''
-}
-const findCard = (card)=>{
-    for( const key in entringCards ){
-        const _card = entringCards[key];
-        if( _card.idm == card.idm ) {
-            return _card
-        }
+// メンバー管理
+class AppCardsHandler {
+    // 全員分を取得する
+    async getAll() {
+        const memberRows = await ipcRenderer.invoke('selectCardsAll');
+        return memberRows;
     }
-    return null;
+
 }
-const deleteCard = (card)=>{
-    const idm = card.idm;
-    if( entringCards.hasOwnProperty(idm)){
-        delete entringCards[idm];
-    }
-}
-const registCard = (card)=>{
-    const idm = card.idm;
-    entringCards[idm] = card;
-}
+const appCardHandler = new AppCardsHandler();
+

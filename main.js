@@ -19,12 +19,16 @@ const pasori_ready = (device_name) =>{
 }
 const pasori_card_touch = (idm) =>{
     //console.log('pasori_card_touch')
-    const browserWindow = BrowserWindow.getFocusedWindow();
+//    const browserWindow = BrowserWindow.getFocusedWindow();
+    const browserWindows = BrowserWindow.getAllWindows()
+    const browserWindow = browserWindows[0];
     browserWindow.webContents.send('card-message', idm);
 }
 const pasori_card_remove = () =>{
     //console.log('pasori_card_remove')
-    const browserWindow = BrowserWindow.getFocusedWindow();
+//    const browserWindow = BrowserWindow.getFocusedWindow();
+    const browserWindows = BrowserWindow.getAllWindows()
+    const browserWindow = browserWindows[0];
     browserWindow.webContents.send('card-message', "");
 }
 // Pasori Reader
