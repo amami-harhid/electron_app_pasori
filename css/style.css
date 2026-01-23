@@ -5,6 +5,8 @@
     width: 100%;
     height: 100%;
     background-image: url('../assets/Garrulus_lidthi.png'),url('../assets/flower-back1127.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
     z-index: -1; /* 背景として配置 */
     opacity: 1.0;
 }
@@ -67,7 +69,7 @@ h1 {
     padding: 30px;
     border: 1px solid #888;
     width: 80%; /* 幅の調整 */
-    max-width: 500px; /* 最大幅 */
+    max-width: 800px; /* 最大幅 */
     border-radius: 8px;
     position: relative;
     box-shadow: 0 5px 15px rgba(0.7,0.7,0.7,0.1);
@@ -94,4 +96,14 @@ h1 {
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+}
+
+.card_message {
+
+    font-size: 120%;
+    font-weight: bolder;
+    color: red;
+    justify-content: center; /* 中央寄せ用 */
+    align-items: center; /* 中央寄せ用 */
+
 }

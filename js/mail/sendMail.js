@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { ipcMain } from 'electron';
 import { ApConfig } from '../conf.js';
-import logger from 'electron-log';
+import { Main_logger } from "../main_logger.js";
 
 const SMTP_SERVER = (ApConfig.has("SMTP_SERVER"))?
         ApConfig.get("SMTP_SERVER"):"";
@@ -69,11 +69,9 @@ const SEND_MAILER = async ( eve,
 
     try {
         let info = await transporter.sendMail(mailOptions);
-        console.log("メールが送信されました:", mailOptions);
-        logger.info("メールが送信されました:", mailOptions)
+        Main_logger.debug("メールが送信されました:", mailOptions)
     } catch (error) {
-        console.error("エラーが発生しました:", error);
-        logger.error("エラーが発生しました:", error)
+        Main_logger.error("エラーが発生しました:", error)
     }
 }
 

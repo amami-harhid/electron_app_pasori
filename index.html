@@ -21,9 +21,16 @@
         <h4>ICカードをタッチしてください</h4>
         <div id="card_manager" class="card_manager">
           <p>IDM&nbsp;(<span id="card_idm"></span>)</p>
-          <p>名前&nbsp;(<input id="card_name" value=""></input>)</p>
-          <p>MAIL&nbsp;(<input id="card_mail" value=""></input>)</p> 
+          <div id="card_empty_idm">
+            <select id="fcno-select"></select>
+          </div>
+          <div id="card_has_idm">
+            <p>FC-NO&nbsp;(<span id="card_fcno"></span>)</p>
+            <p>名前&nbsp;(<span id="card_name"></span>)</p>
+            <p>カナ&nbsp;(<span id="card_kana"></span>)</p>
+          </div>
           <p id="card_edit"><button id="card_regist">登録</button>&nbsp;<button id="card_delete">削除</button></p>
+          <p class="card_message"><span id="card_message_span"></span></p>
         </div>
       </div>
     </div>

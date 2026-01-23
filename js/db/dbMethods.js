@@ -18,10 +18,12 @@ const createCards = (eve)=>{
             IF NOT EXISTS cards 
             (
                 [id] integer primary key autoincrement, 
-                [idm] text, 
-                [name] text, 
+                [fcno] text,
+                [name] text,
+                [kana] text,
                 [mail] text, 
                 [in_room] boolean, 
+                [idm] text, 
                 [date_time] datetime
             );`,
             err => {
@@ -31,7 +33,7 @@ const createCards = (eve)=>{
         )
     })
 };
-const selectCardsAll = (eve) => {
+const selectCardsAll = (_) => {
     return new Promise((resolve, reject) => {
         const sql = "SELECT * FROM cards;";
         db.all(sql, [], (err, rows)=>{
@@ -43,7 +45,7 @@ const selectCardsAll = (eve) => {
         })
     })
 };
-const selectCardsWithCondition = (eve, condition) => {
+const selectCardsWithCondition = (_, condition) => {
     return new Promise((resolve, reject) => {
         let sql = "SELECT * FROM cards";
         if(condition && typeof condition === 'string'){
@@ -59,7 +61,7 @@ const selectCardsWithCondition = (eve, condition) => {
     })
 };
 
-const selectCardsByIdm = (eve, idm) => {
+const selectCardsByIdm = (_, idm) => {
     return new Promise((resolve, reject) => {
         let sql = "SELECT * FROM cards WHERE idm = ?";
         db.all(sql, [idm], (err, rows)=>{
@@ -70,7 +72,18 @@ const selectCardsByIdm = (eve, idm) => {
         })
     })
 };
-const updateInRoom = (eve, idm, in_room) => {
+const selectCardsByFcno = (_, fcno) => {
+    return new Promise((resolve, reject) => {
+        let sql = "SELECT * FROM cards WHERE fcno = ?";
+        db.all(sql, [fcno], (err, rows)=>{
+            if(err) {
+                return reject(err);
+            }
+            resolve(rows);
+        })
+    })
+};
+const updateInRoom = (_, idm, in_room) => {
     return new Promise((resolve, reject) => {
         db.run(
             `UPDATE cards 
@@ -85,14 +98,29 @@ const updateInRoom = (eve, idm, in_room) => {
         )
     })
 };
-const update = (eve, idm, name, mail) => {
+const updateIdmByFcno = (_, fcno, idm) => {
     return new Promise((resolve, reject) => {
         db.run(
             `UPDATE cards 
-            SET name = ?, mail = ?, in_room = false,
+            SET idm = ?, 
+            date_time = datetime("now", "localtime") 
+            WHERE fcno = ?;`, 
+            [idm, fcno], 
+            err => {
+                if (err) reject(err);
+                resolve(true);
+            }
+        )
+    })
+};
+const update = (_, name, kana, mail, idm) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `UPDATE cards 
+            SET name = ?, kana = ?, mail = ?,
             date_time = datetime("now", "localtime") 
             WHERE idm = ?;`, 
-            [name, mail, idm], 
+            [name, kana, mail, idm], 
             err => {
                 if (err) reject(err);
                 resolve(true);
@@ -101,13 +129,13 @@ const update = (eve, idm, name, mail) => {
     })
 };
 // データ挿入
-const insertData = async (eve, idm, name, mail, in_room) => {
+const insertData = async (_, fcno, name, kana, mail, in_room, idm) => {
     return new Promise((resolve, reject) => {
         db.run(
             `INSERT INTO cards 
-            (idm, name, mail, in_room, date_time) 
-            VALUES (?, ?, ?, ? , datetime("now", "localtime"));`, 
-            [idm, name, mail, in_room], 
+            (fcno, name, kana, mail, in_room, idm, date_time) 
+            VALUES (?, ?, ?, ?, ?, ?, datetime("now", "localtime"));`, 
+            [fcno, name, kana, mail, in_room, idm], 
             err => {
                 if (err) reject(err);
                 resolve(true);
@@ -115,12 +143,26 @@ const insertData = async (eve, idm, name, mail, in_room) => {
         )
     });    
 }
-const deleteCards = async (eve, idm) => {
+const releaseIdm = async (_, idm) => {
     return new Promise((resolve, reject) => {
-        if(idm) {
-            const sql = "DELETE FROM cards WHERE idm=?;";
+        const sql = "UPDATE cards SET idm = '' WHERE idm=?;";
             db.run(
                 sql,[idm],
+                err => {
+                    if (err) reject(err);
+                    resolve(true);
+                }
+            )
+    });
+
+}
+
+const deleteCards = async (_, fcno) => {
+    return new Promise((resolve, reject) => {
+        if(idm) {
+            const sql = "DELETE FROM cards WHERE fcno=?;";
+            db.run(
+                sql,[fcno],
                 err => {
                     if (err) reject(err);
                     resolve(true);
@@ -139,7 +181,7 @@ const deleteCards = async (eve, idm) => {
     });
 }
 
-const dropCards = async (eve) => {
+const dropCards = async (_) => {
     return new Promise((resolve, reject) => {
         const sql = "DROP TABLE IF EXISTS cards;";
         db.run(
@@ -161,9 +203,12 @@ export const pasoriDb = {
     selectCardsAll: selectCardsAll,
     selectCardsWithCondition: selectCardsWithCondition,
     selectCardsByIdm: selectCardsByIdm,
+    selectCardsByFcno: selectCardsByFcno,
+    updateIdmByFcno: updateIdmByFcno,
     update: update,
     updateInRoom: updateInRoom,
     insertData: insertData,
+    releaseIdm, releaseIdm,
     deleteCards: deleteCards,
     dbClose: dbClose,
 }

@@ -2,16 +2,16 @@ import { app, BrowserWindow, Menu } from 'electron';
 import { menu } from './js/menu.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import logger from 'electron-log';
+import { Main_logger } from "./js/main_logger.js";
+
 import {Reader} from "./card.js"
 import {handle_mail_methods } from './js/mail/sendMail.js';
 import {pasoriDb, handle_db_methods} from './js/db/dbMethods.js'
 import {handle_page_methods} from './js/page.js';
 import {initDb} from './js/db/dbMethods.js'
-//import {ApConfig} from './js/conf.js';
 import Startup from 'electron-squirrel-startup';
 if(Startup) {
-    logger.debug('electron-squirrel-startup')
+    Main_logger.debug('electron-squirrel-startup')
     app.quit();
 }
 const pasori_ready = (device_name) =>{
@@ -62,7 +62,7 @@ function createWindow() {
     Menu.setApplicationMenu(menu);
 
     mainWindow.loadFile("index.html");
-    //mainWindow.webContents.openDevTools(); // 開発者ツールを表示
+    mainWindow.webContents.openDevTools(); // 開発者ツールを表示
     mainWindow.setAlwaysOnTop(true, 'screen-saver');
     //mainWindow.setIgnoreMouseEvents(true, { forward: true }); // マウス無効にすると閉じることができない。
     mainWindow.moveTop();
@@ -108,21 +108,21 @@ if (!gotTheLock) {
     app.on("window-all-closed", () => {
         pasoriDb.dbClose();
         if (process.platform !== "darwin") {
-            console.log("app.quit()")
-            logger.info('app.quit()');
+            //console.log("app.quit()")
+            Main_logger.debug('app.quit()');
             app.quit();
         }
     });
 
     process.on("uncaughtException", (event)=>{
-            console.log("uncaughtException")
-        logger.error(event);
+        Main_logger.error("uncaughtException")
+        Main_logger.error(event);
         //UnhandledPromiseRejectionWarning
     });
 
     process.on("unhandledRejection", (event)=>{
-        console.log("unhandledRejection")
-        logger.error(event);
+        Main_logger.error("unhandledRejection")
+        Main_logger.error(event);
             //UnhandledPromiseRejectionWarning
     });
 

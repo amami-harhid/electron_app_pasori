@@ -11,7 +11,7 @@ const bridgeExposeInMainWorld = () => {
                 ipcRenderer.invoke('createCards') //データベース作成
             },
             selectCardsAll: async () => {
-                console.log('ipcRenderer.invoke selectCardsAll')
+                //console.log('ipcRenderer.invoke selectCardsAll')
                 return ipcRenderer.invoke('selectCardsAll')  //SELECT *
             },
             selectCardsWithCondition: async (condition) => {
@@ -25,6 +25,9 @@ const bridgeExposeInMainWorld = () => {
             },
             updateInRoom: async (in_room, idm) => {
                 return ipcRenderer.invoke('updateInRoom', in_room, idm) // 在室中の更新
+            },
+            releaseIdm: async (idm) => {
+                return ipcRenderer.invoke('releaseIdm', idm)
             },
             deleteCards: async (idm) => {
                 return ipcRenderer.invoke('deleteCards', idm)
@@ -96,13 +99,19 @@ window.addEventListener("DOMContentLoaded", () => {
     const card_regist = document.getElementById('card_regist');
     const card_delete = document.getElementById('card_delete');
     const span_card_idm = document.getElementById('card_idm');
+    const card_fcno = document.getElementById('card_fcno')
     const card_name = document.getElementById('card_name');
-    const card_mail = document.getElementById('card_mail');
+    const card_kana = document.getElementById('card_kana');
+    //const card_mail = document.getElementById('card_mail');
+    const fcno_select = document.getElementById('fcno-select');
+    const card_message_span = document.getElementById('card_message_span');
 
     const alt = document.getElementById("confirm");
     const p = alt.querySelector("p");
     const btn_yes = alt.querySelector("#confirm-yes");
     const btn_no = alt.querySelector("#confirm-no");
+    const card_empty_idm = document.getElementById('card_empty_idm');
+    const card_has_idm = document.getElementById('card_has_idm');
 
     const myConfirm = (text) => {
         p.textContent = text;
@@ -119,38 +128,86 @@ window.addEventListener("DOMContentLoaded", () => {
             btn_no.addEventListener("click",noEvent);
         })
     }
-
+    let now_confirm = false;
     card_regist.addEventListener('click', async ()=>{
-        const answer = await myConfirm('登録しますか？')
-        if(answer === true){
-            const idm = span_card_idm.innerHTML;
-            const name = card_name.value;
-            const mail = card_mail.value;
-            const rows = await ipcRenderer.invoke('selectCardsByIdm',idm);
-            if(rows.length > 0) {
-                // REPLACE
-                await ipcRenderer.invoke('update',idm, name, mail);
+        if(now_confirm == true){
+            return false;
+        }
 
-            }else{
-                // INSERT
-                await ipcRenderer.invoke('insertData',idm, name, mail, false);
+        card_message_span.innerHTML = '';
+        const idm= span_card_idm.innerHTML;
+        const checkView = async(fcno) => {
+            const rows = await ipcRenderer.invoke('selectCardsByFcno',fcno);
+            if(rows.length > 0) {
+                fcno_select.innerHTML = '';
+                const _card = rows[0];
+                card_fcno.innerHTML = _card.fcno;
+                card_name.innerHTML = _card.name;
+                card_kana.innerHTML = _card.kana;
             }
-            card_name.setAttribute("value", name);
-            card_mail.setAttribute("value", mail);
+        }
+        if(card_regist.innerHTML == '確認'){
+            card_regist.innerHTML = '更新';
+            // 選択した値
+            const _fcno = fcno_select.value;
+            await checkView(_fcno);
+            card_empty_idm.style.display = 'none';
+            card_has_idm.style.display = 'inline-block';
+        }else{
+            now_confirm = true;
+            const answer = await myConfirm('登録しますか？')
+            now_confirm = false;
+            const target_name = card_name.innerHTML;
+            if(answer === true){
+                if(card_has_idm.style.display != 'none') {
+                    // IDM登録がないときの条件
+                    const _fcno = card_fcno.innerHTML;
+                    if(_fcno && typeof _fcno === 'string' && _fcno.length > 0){
+                        await ipcRenderer.invoke('updateIdmByFcno', _fcno, idm);
+                        card_regist.style.display = 'none';
+                        await checkView(_fcno);
+                        card_message_span.innerHTML = `${target_name}さんへIDMを登録しました`
+                    }
+                }
+            }
+            if(card_touching === false) {
+                // カードが離れているとき
+                setTimeout(()=>{
+                    hide_card_manager();
+                }, 1000);
+            }
         }
         return false;
     });
     card_delete.addEventListener('click', async ()=>{
+        if(now_confirm == true){
+            return false;
+        }
+        const target_name = card_name.innerHTML;
+        card_message_span.innerHTML = '';
+        now_confirm = true;
         const answer = await myConfirm('削除しますか？')
+        now_confirm = false;
         if(answer === true){
             const idm = span_card_idm.innerHTML;
-            await ipcRenderer.invoke('deleteCards',idm);
-            card_name.setAttribute("value", "");
-            card_mail.setAttribute("value", "");
+            await ipcRenderer.invoke('releaseIdm',idm);
+            card_fcno.innerHTML = "";
+            card_name.innerHTML = "";
+            card_kana.innerHTML = "";
+            //card_mail.setAttribute("value", "");
+            card_regist.style.display = "none";
             card_delete.style.display = "none";
+            card_message_span.innerHTML = `${target_name}さんからIDMを除外しました`;
+
         }
-        card_name.disable = false;
-        card_mail.disable = false;
+        if(card_touching === false) {
+            // カードが離れているとき
+            setTimeout(()=>{
+                hide_card_manager();
+            }, 1000);
+        }
+        //card_name.disable = false;
+        //card_mail.disable = false;
         return false;
     });
 
@@ -158,17 +215,17 @@ window.addEventListener("DOMContentLoaded", () => {
         const MAILER_CONFIG = await ipcRenderer.invoke('mailer:get_config');
 
         //database_init(window);
-        if (idm == ''){
+        if (idm == null || idm == ''){
             modal.style.display = 'none';
             return;
         }
         const cardsRows = await ipcRenderer.invoke('selectCardsWithCondition', `idm = '${idm}'`);
-        console.log('ic_card_general');
-        console.log(cardsRows);
+        //console.log('ic_card_general');
+        //console.log(cardsRows);
         if( cardsRows.length == 0) {
-            console.log(`登録なしカード=(${idm})`);
+            //console.log(`登録なしカード=(${idm})`);
             soundNGPlay();
-            console.log('soundNGPlay() おわり')
+            //console.log('soundNGPlay() おわり')
             while( statusDiv.firstChild) {
                 statusDiv.removeChild( statusDiv.firstChild)
             }
@@ -179,9 +236,9 @@ window.addEventListener("DOMContentLoaded", () => {
             modal.style.display = 'block';
             return;
         }
-        console.log(`登録ありカード=(${idm})`);
+        //console.log(`登録ありカード=(${idm})`);
         const card = cardsRows[0];
-        console.log(card);
+        //console.log(card);
         //const card = new Card();
         //card.idm = idm;
         if( statusDiv ) {
@@ -242,47 +299,67 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
     }
+    let card_touching = false;
+    const hide_card_manager = () => {
+        card_manager.style.display = 'none';
+        fcno_select.innerHTML = ''; // option全削除
+        span_card_idm.innerHTML = "";
+        card_fcno.innerHTML = "";
+        card_name.innerHTML = "";
+        card_kana.innerHTML = "";
+        card_edit.style.display = 'none';
+    }
     const ic_card_manager = async (idm) => {
-        
+        card_touching = true;
+        card_message_span.innerHTML = '';
+
         if (idm == ''){
-            card_manager.style.display = 'none';
-            span_card_idm.innerHTML = "";
-            card_name.setAttribute('value', "");
-            //card_name.value = "";
-            card_mail.setAttribute('value', "");
-            //card_mail.value = "";
-            card_edit.style.display = 'none';
-            card_name.disable = false;
-            card_name.readOnly = false;
-            card_mail.disable = false;
-            card_mail.readOnly = false;
+            card_touching = false;
+            if(now_confirm === true){
+                return;
+            }
+            hide_card_manager();
             return;
         }
         card_manager.style.display = 'block';
         span_card_idm.innerHTML = idm;
-        const rows = await ipcRenderer.invoke('selectCardsWithCondition', `idm = '${idm}'`);
+        const rows = await ipcRenderer.invoke('selectCardsByIdm', idm);
         if(rows.length == 0){
+            // IDM未登録
+            card_empty_idm.style.display = 'inline-block';
+            card_has_idm.style.display = 'none';
+            const emptyRows = await ipcRenderer.invoke('selectCardsByIdm', '');
+            // 選択肢を追加
+            fcno_select.innerHTML = ''; // option全削除
+            for(const card of emptyRows) {
+                //console.log(card);
+                const newOption = document.createElement("option");
+                newOption.value = card.fcno;
+                newOption.text = `${card.name}(${card.fcno})`;
+                fcno_select.add(newOption);
+            }
+            // IDM登録なし
             card_delete.style.display = "none";
-            card_name.setAttribute('value', "");
-            card_mail.setAttribute('value', "");
-            //card_name.value = "";
-            //card_mail.value = "";
-            card_name.disable = false;
-            card_name.readOnly = false;
-            card_mail.disable = false;
-            card_mail.readOnly = false;
+            if(emptyRows.length == 0) {
+                // 登録できない
+                card_regist.style.display = "none";
+            }else{
+                card_regist.style.display = "inline-block";
+                card_regist.innerHTML = "確認";
+
+            }
 
         }else{
+            // IDM登録あり
+            card_empty_idm.style.display = 'none';
+            card_has_idm.style.display = 'inline-block';
+
+            card_regist.style.display = 'none';
             card_delete.style.display = "inline-block";
             const card = rows[0];
-            card_name.setAttribute('value', card.name);
-            card_mail.setAttribute('value', card.mail);
-            //card_name.value = (card.name)?card.name:"";
-            //card_mail.value = (card.mail)?card.mail:"";
-            card_name.disable = false;
-            card_name.readOnly = false;
-            card_mail.disable = false;
-            card_mail.readOnly = false;
+            card_fcno.innerHTML = card.fcno;
+            card_name.innerHTML = card.name;
+            card_kana.innerHTML = card.kana;
         }
         card_edit.style.display = 'block';
 
@@ -300,7 +377,7 @@ window.addEventListener("DOMContentLoaded", () => {
     })
     
     ipcRenderer.on('app-manager-handling', async (_, managing)=>{ 
-        console.log('managing=', managing);
+        //console.log('managing=', managing);
         if(managing===true){
             modal.style.display = 'none';
             modalManager.style.display = 'block';

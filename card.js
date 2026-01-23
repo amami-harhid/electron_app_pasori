@@ -1,5 +1,6 @@
 import { NFC } from "./nfc-pcsc/index.js";
 //import {NFC} from "nfc-pcsc";
+import { Main_logger } from "./js/main_logger.js";
 
 const nfc = new NFC();
 
@@ -32,18 +33,24 @@ export class Reader {
     ) {
         //console.log('waiting, in Reader')
         //await waitForCondition(() => Reader.win != null, 50, 5000);
-        console.log('ready go, in Reader')
+        //console.log('ready go, in Reader')
+        Main_logger.debug('ready go, in Reader');
         nfc.on('reader', reader=>{
             const device_name = reader.reader.name;
-            console.log(`Device ready (${device_name})`);
+            Main_logger.debug(`Device ready (${device_name})`);
+            //console.log(`Device ready (${device_name})`);
             callback_pasori_ready(device_name);
             reader.on('card', async card => {
+                Main_logger.debug(`IC Card touched`);
+                Main_logger.debug(card);
 	            //console.log(`IC Card touched`);
-	            console.log(card);
+	            //console.log(card);
                 pasori_card_touch(card.uid);
         
             });
             reader.on('card.off', card=>{
+                Main_logger.debug(`IC Card removed`);
+                Main_logger.debug(card);
                 //console.log(`IC Card removed`);
 	            //console.log(card);
                 pasori_card_remove()
