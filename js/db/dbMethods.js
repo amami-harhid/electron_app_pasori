@@ -236,8 +236,34 @@ const outRoomHistoriesByIdm = async (_, idm) => {
         return false;
     }
 }
-const deleteHistories = async (_) => {
-    // １年より前の履歴は削除する
+const deleteHistoriesByIdm = async (_,idm) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `DELETE histories 
+            WHERE idm = ?;`, 
+            [idm], 
+            err => {
+                if (err) reject(err);
+                resolve(true);
+            }
+        )
+    });
+}
+const deleteHistoriesByFcno = async (_,fcno) => {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `DELETE histories
+            WHERE fcno = ?;`, 
+            [fcno], 
+            err => {
+                if (err) reject(err);
+                resolve(true);
+            }
+        )
+    });
+}
+const deleteOldHistories = async (_,idm) => {
+
 
 }
 const updateYesterday = async (_) => {
@@ -291,9 +317,21 @@ const releaseIdm = async (_, idm) => {
 
 }
 
-const deleteCards = async (_, fcno) => {
+const deleteCards = async (_) => {
     return new Promise((resolve, reject) => {
-        if(idm) {
+        const sql = "DELETE FROM cards;";
+        db.run(
+            sql,
+            err => {
+                if (err) reject(err);
+                resolve(true);
+            }
+        )
+    });
+}
+const deleteCardsByFcno = async (_, fcno) => {
+    return new Promise((resolve, reject) => {
+        if(fcno) {
             const sql = "DELETE FROM cards WHERE fcno=?;";
             db.run(
                 sql,[fcno],
@@ -302,16 +340,8 @@ const deleteCards = async (_, fcno) => {
                     resolve(true);
                 }
             )
-        }else{
-            const sql = "DELETE FROM cards;";
-            db.run(
-                sql,
-                err => {
-                    if (err) reject(err);
-                    resolve(true);
-                }
-            )
-        }    
+        }
+        return false;    
     });
 }
 
@@ -355,6 +385,9 @@ export const pasoriDb = {
     dailyClean:dailyClean,
     dbClose: dbClose,
     deleteCards: deleteCards,
+    deleteCardsByFcno: deleteCardsByFcno,
+    deleteHistoriesByIdm:deleteHistoriesByIdm,
+    deleteHistoriesByFcno:deleteHistoriesByFcno,
     dropHistories: dropHistories,
     inRoomHistoriesByIdm: inRoomHistoriesByIdm,
     insertData: insertData,

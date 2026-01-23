@@ -108,6 +108,10 @@ window.addEventListener("DOMContentLoaded", () => {
     const fcno_select = document.getElementById('fcno-select');
     const card_message_span = document.getElementById('card_message_span');
     const memberTable = document.getElementById('members');
+    const member_edit_cancel = document.getElementById('member_edit_cancel');
+    const member_edit_update = document.getElementById('member_edit_update');
+    const member_edit_remove = document.getElementById('member_edit_remove');
+    const add_new_member = document.getElementById('add_new_member');
 
     const alt = document.getElementById("confirm");
     const p = alt.querySelector("p");
@@ -421,7 +425,7 @@ window.addEventListener("DOMContentLoaded", () => {
         modalManager.style.display = 'none';
         modalMembers.style.display = 'none';
     })
-    ipcRenderer.on('app-members-handling', async ()=>{ 
+    const app_members_handling = async() => {
         nowAppManagerHandling = false;
         nowAppGeneralHandling = false;
         nowAppMembersHandling = true;
@@ -476,7 +480,10 @@ window.addEventListener("DOMContentLoaded", () => {
                 const cell = row.insertCell(colomnIdx++);
                 cell.textContent = card.idm;
             }
-        }
+        }        
+    }
+    ipcRenderer.on('app-members-handling', async ()=>{
+        await app_members_handling();
     })
     memberTable.addEventListener('click', async (e)=>{
         if(e) {
@@ -488,22 +495,85 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     });
     const editCard = async (fcno) => {
+        member_edit_remove.style.display = 'none';
         const targetCardRows = await ipcRenderer.invoke('selectCardsByFcno', fcno);
+        const member_edit_fcno = document.getElementById('member_edit_fcno');
+        const member_edit_name = document.getElementById('member_edit_name');
+        const member_edit_kana = document.getElementById('member_edit_kana');
+        const member_edit_mail = document.getElementById('member_edit_mail');
         if(targetCardRows.length > 0){
             pasoriModal_members_content.style.display = 'none';
             pasoriModal_members_edit_content.style.display = 'block';
             const card = targetCardRows[0];
-            console.log(card);
-            const member_edit_name = document.getElementById('member_edit_name');
-            const member_edit_kana = document.getElementById('member_edit_kana');
-            const member_edit_mail = document.getElementById('member_edit_mail');
+            member_edit_fcno.setAttribute('value', card.fcno);
+            member_edit_fcno.readOnly = true;
             member_edit_name.setAttribute('value', card.name);
             member_edit_kana.setAttribute('value', card.kana);
             member_edit_mail.setAttribute('value', card.mail);
-            
-
+            member_edit_update.innerHTML = "更新";
+            member_edit_remove.style.display = 'inline-block';
+        }else{
+            pasoriModal_members_content.style.display = 'none';
+            pasoriModal_members_edit_content.style.display="block";
+            member_edit_fcno.setAttribute('value', "");
+            member_edit_fcno.readOnly = false;
+            member_edit_name.setAttribute('value', "");
+            member_edit_kana.setAttribute('value', "");
+            member_edit_mail.setAttribute('value', "");
+            member_edit_update.innerHTML = "追加";
         }
+
     }
+    // キャンセル
+    member_edit_cancel.addEventListener('click',async()=>{
+        await app_members_handling();
+    });
+    // 更新
+    member_edit_update.addEventListener('click',async()=>{
+        const _type = member_edit_update.innerHTML;
+        if(_type == '更新'){
+            const member_edit_fcno = document.getElementById('member_edit_fcno');
+            const fcno = member_edit_fcno.value;
+            const rows = await ipcRenderer.invoke('selectCardsByFcno', fcno);
+            if(rows.length>0){
+                const card = rows[0];
+                await ipcRenderer.invoke('update',
+                    card.name,
+                    card.kana,
+                    card.mail,
+                    card.idm
+                );
+            }
+        }else if(_type=='追加'){
+            const member_edit_fcno = document.getElementById('member_edit_fcno');
+            const fcno = member_edit_fcno.value;
+            const member_edit_name = document.getElementById('member_edit_name');
+            const member_edit_kana = document.getElementById('member_edit_kana');
+            const member_edit_mail = document.getElementById('member_edit_mail');
+            await ipcRenderer.invoke('insertData',
+                fcno, member_edit_name.value,
+                member_edit_kana.value, 
+                member_edit_mail.value,
+                false, // in_room 
+                '' // idm
+            );
+        }
+        await app_members_handling();
+    });
+    // 削除
+    member_edit_remove.addEventListener('click', async()=>{
+        const member_edit_fcno = document.getElementById('member_edit_fcno');
+        const fcno = member_edit_fcno.value;
+        await ipcRenderer.invoke('deleteCardsByFcno',
+                fcno
+            );
+        await ipcRenderer.invoke('deleteHistoriesByFcno', fcno);
+        await app_members_handling();
+    });
+    // 新規メンバー追加
+    add_new_member.addEventListener('click',async ()=>{
+        await editCard();
+    });
 });
 
 // メンバー管理
