@@ -495,6 +495,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     });
     const editCard = async (fcno) => {
+        console.log('editCard fcno=',fcno);
         member_edit_remove.style.display = 'none';
         const targetCardRows = await ipcRenderer.invoke('selectCardsByFcno', fcno);
         const member_edit_fcno = document.getElementById('member_edit_fcno');
@@ -505,21 +506,21 @@ window.addEventListener("DOMContentLoaded", () => {
             pasoriModal_members_content.style.display = 'none';
             pasoriModal_members_edit_content.style.display = 'block';
             const card = targetCardRows[0];
-            member_edit_fcno.setAttribute('value', card.fcno);
+            member_edit_fcno.value = fcno;
             member_edit_fcno.readOnly = true;
-            member_edit_name.setAttribute('value', card.name);
-            member_edit_kana.setAttribute('value', card.kana);
-            member_edit_mail.setAttribute('value', card.mail);
+            member_edit_name.value = card.name;
+            member_edit_kana.value = card.kana;
+            member_edit_mail.value = card.mail;
             member_edit_update.innerHTML = "更新";
             member_edit_remove.style.display = 'inline-block';
         }else{
             pasoriModal_members_content.style.display = 'none';
             pasoriModal_members_edit_content.style.display="block";
-            member_edit_fcno.setAttribute('value', "");
+            member_edit_fcno.value = "";
             member_edit_fcno.readOnly = false;
-            member_edit_name.setAttribute('value', "");
-            member_edit_kana.setAttribute('value', "");
-            member_edit_mail.setAttribute('value', "");
+            member_edit_name.value = "";
+            member_edit_kana.value = "";
+            member_edit_mail.value = "";
             member_edit_update.innerHTML = "追加";
         }
 
@@ -531,27 +532,28 @@ window.addEventListener("DOMContentLoaded", () => {
     // 更新
     member_edit_update.addEventListener('click',async()=>{
         const _type = member_edit_update.innerHTML;
+        const member_edit_fcno = document.getElementById('member_edit_fcno');
+        const member_edit_name = document.getElementById('member_edit_name');
+        const member_edit_kana = document.getElementById('member_edit_kana');
+        const member_edit_mail = document.getElementById('member_edit_mail');
         if(_type == '更新'){
-            const member_edit_fcno = document.getElementById('member_edit_fcno');
             const fcno = member_edit_fcno.value;
             const rows = await ipcRenderer.invoke('selectCardsByFcno', fcno);
             if(rows.length>0){
                 const card = rows[0];
+                const idm = card.idm;
                 await ipcRenderer.invoke('update',
-                    card.name,
-                    card.kana,
-                    card.mail,
-                    card.idm
+                    member_edit_name.value,
+                    member_edit_kana.value, 
+                    member_edit_mail.value,
+                    idm
                 );
             }
         }else if(_type=='追加'){
-            const member_edit_fcno = document.getElementById('member_edit_fcno');
             const fcno = member_edit_fcno.value;
-            const member_edit_name = document.getElementById('member_edit_name');
-            const member_edit_kana = document.getElementById('member_edit_kana');
-            const member_edit_mail = document.getElementById('member_edit_mail');
             await ipcRenderer.invoke('insertData',
-                fcno, member_edit_name.value,
+                fcno, 
+                member_edit_name.value,
                 member_edit_kana.value, 
                 member_edit_mail.value,
                 false, // in_room 
