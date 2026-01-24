@@ -8,13 +8,16 @@
     <script src="./js/pageInit.js"></script>
   </head>
   <body>
+    <!-- 背景部 -->
     <div class="container"></div>
+    <!-- カードリーダー部 -->
     <h1 id="pageTitle" class="pageTitle">Now Stating up!</h1>
     <div id="pasoriModal" class="modal">
       <div class="modal-content">
         <div id="statusDiv" class="card"></div>
       </div>
     </div>
+    <!-- 管理者 -->
     <div id="pasoriModal_manager" class="modal_manager">
       <div class="modal-content">
         <h2>管理者の操作</h2>
@@ -40,21 +43,23 @@
         <button id="confirm-yes">はい</button><button id="confirm-no">いいえ</button>
       </div>
     </div>
+    <!-- メンバー管理 -->
     <div id="pasoriModal_members" class="modal_members">
       <div id="pasoriModal_members_content" class="modal-content">
         <h2>メンバー管理</h2>
         <div>
           <p><button id="add_new_member">追加</button></p>
-          <table id="members" class="membersTable">
+          <table id="members" class="appTable">
             <tbody>
-            <th>
+            <tr>
+              <th>NO</th>
               <th>FCNO</th>
               <th>名前</th>
               <th>カナ</th>
               <th>MAIL</th>
               <th>在室</th>
               <th>CARD</th>
-            </th>              
+            </tr>              
             </tbody>
             <tbody></tbody>
           </table>
@@ -73,12 +78,36 @@
         </div>
       </div>
     </div>
+    <!-- バージョン表示部 -->
     <div id="app_version_modal" class="confirm">
       <div>
         <p id="app_version_view"></p>
         <br>
         <button id="app_version_yes">確認</button>
       </div>
+    </div>
+    <!-- 入退室履歴部 -->
+    <div id="pasoriModal_histories" class="modal_histories">
+      <div id="pasoriModal_members_content" class="modal-content">
+        <label for="histories_inputDate">日付を選択してください:</label>
+        <input type="date" id="histories_inputDate">
+        <p>選択された日付: <span id="histories_dateResult"></span></p>
+        <table id="histories_table" class="appTable">
+          <tbody>
+            <tr>
+              <th>NO</th>
+              <th>FCNO</th>
+              <th>名前</th>
+              <th>カナ</th>
+              <th>入室</th>
+              <th>退室</th>
+            </tr>
+          </tbody>
+          <tbody></tbody> 
+        </table>
+      </div>
+
+
     </div>
 
   </body>

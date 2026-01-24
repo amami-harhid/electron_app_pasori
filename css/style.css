@@ -123,12 +123,12 @@ h1 {
 
 }
 
-.membersTable {
+.appTable {
     border: 1px solid black;
     border-collapse: collapse; /* 二重線を一本化 */
     border-spacing: 10px; /* セル間隔 */
 }
-.membersTable th, td {
+.appTable th, td {
     font-size: 80%;
     border: 1px dashed blue;
 }

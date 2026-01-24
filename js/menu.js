@@ -6,12 +6,13 @@ const GENERAL_STOP = '#Genaral_STOP';
 const MEMBERS = '#MEMBERS';
 const DEV_TOOL = "#DEV_TOOL";
 const APP_VERSION = "#APP_VERSION";
+const HISTORIES = "#HISTORIES";
 const template = [
     { 
         label: '操作', 
         submenu: [
             {
-                label: '開始',
+                label: '読込開始',
                 id: GENERAL,
                 enabled: true,
                 click: () => {
@@ -19,7 +20,7 @@ const template = [
                 }
             },
             {
-                label: '停止',
+                label: '読込停止',
                 id: GENERAL_STOP,
                 enabled: false,
                 click: () => {
@@ -27,7 +28,7 @@ const template = [
                 }
             },
             {
-                label: 'メンバー',
+                label: 'メンバー一覧',
                 id: MEMBERS,
                 enabled: true,
                 click: () => {
@@ -42,6 +43,20 @@ const template = [
                     toManager();
                 }
             },
+        ] 
+    },
+    { 
+        label: '履歴', 
+        submenu: [
+            {
+                label: '入退室履歴',
+                id: HISTORIES,
+                enabled: true,
+                click: () => {
+                    viewHistories();
+                }
+            },
+
         ] 
     },
     { 
@@ -71,12 +86,15 @@ const APP_GENERAL_HANDLING = "app-general-handling";
 const APP_GENERAL_STOP_HANDLING = "app-general-stop-handling";
 const APP_MANAGER_HANDLING = "app-manager-handling";
 const APP_MEMBERS_HANDLING = "app-members-handling";
+const APP_VERSION_HANDLING = "app-version-handling";
+const APP_HISTORIES_HANDLING = "app-histories-handling";
 const toManager = ()=>{
     const menu = Menu.getApplicationMenu();
     menu.getMenuItemById(GENERAL).enabled = true;
     menu.getMenuItemById(GENERAL_STOP).enabled = false;
     menu.getMenuItemById(CARD_MANAGE).enabled = false;
     menu.getMenuItemById(MEMBERS).enabled = true;
+    menu.getMenuItemById(HISTORIES).enabled = true;
     const browserWindow = BrowserWindow.getFocusedWindow();
     browserWindow.send(APP_MANAGER_HANDLING);
 }
@@ -86,6 +104,7 @@ const toGeneral = () => {
     menu.getMenuItemById(GENERAL_STOP).enabled = true;
     menu.getMenuItemById(MEMBERS).enabled = true;
     menu.getMenuItemById(CARD_MANAGE).enabled = true;
+    menu.getMenuItemById(HISTORIES).enabled = false;
     const browserWindow = BrowserWindow.getFocusedWindow();
     browserWindow.send(APP_GENERAL_HANDLING);
 }
@@ -95,6 +114,8 @@ const toGeneralStop = () => {
     menu.getMenuItemById(GENERAL_STOP).enabled = false;
     menu.getMenuItemById(MEMBERS).enabled = true;
     menu.getMenuItemById(CARD_MANAGE).enabled = true;
+    menu.getMenuItemById(HISTORIES).enabled = true;
+
     const browserWindow = BrowserWindow.getFocusedWindow();
     browserWindow.send(APP_GENERAL_STOP_HANDLING);
 }
@@ -104,6 +125,7 @@ const toMember = () => {
     menu.getMenuItemById(GENERAL_STOP).enabled = false;
     menu.getMenuItemById(CARD_MANAGE).enabled = true;
     menu.getMenuItemById(MEMBERS).enabled = false;
+    menu.getMenuItemById(HISTORIES).enabled = true;
     const browserWindow = BrowserWindow.getFocusedWindow();
     browserWindow.send(APP_MEMBERS_HANDLING);
 }
@@ -114,9 +136,17 @@ const openDevTool = () => {
 const viewAppVersion = () => {
     const version = appVersion();
     const browser = BrowserWindow.getFocusedWindow();
-    browser.webContents.send('app-version-handling', version);
+    browser.webContents.send(APP_VERSION_HANDLING, version);
+}
+const viewHistories = () => {
+    menu.getMenuItemById(GENERAL).enabled = true;
+    menu.getMenuItemById(GENERAL_STOP).enabled = false;
+    menu.getMenuItemById(CARD_MANAGE).enabled = true;
+    menu.getMenuItemById(MEMBERS).enabled = true;
+    menu.getMenuItemById(HISTORIES).enabled = true;
+    const browser = BrowserWindow.getFocusedWindow();
+    browser.webContents.send(APP_HISTORIES_HANDLING);
 
-    // app-version-handling
 }
 // macOS では "アプリメニュー" が必要
 if (process.platform === 'darwin') template.unshift({ role: 'appMenu' });

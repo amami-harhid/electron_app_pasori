@@ -5,7 +5,7 @@ import sqlite3 from 'sqlite3';
 const DB_PATH = "DB_PATH";
 const db_path = (ApConfig.has(DB_PATH))?
     ApConfig.get(DB_PATH): app.getPath('userData');
-console.log("db_path=",db_path)
+//console.log("db_path=",db_path)
 const db = new sqlite3.Database(`${db_path}/pasori_card.db`);
 
 const TEST_DATA = "TEST_DATA";
@@ -159,11 +159,45 @@ const update = (_, name, kana, mail, idm) => {
         )
     })
 };
-const selectInRoomHistoriesByIdm = async (_, idm) => {
+const selectInRoomHistoriesByIdm = async (_, idm, date) => {
     return new Promise((resolve, reject) => {
-        let sql = `SELECT * FROM histories 
-            WHERE idm = ? AND date_in = date(CURRENT_DATE)`;
-        db.all(sql, [idm], (err, rows)=>{
+        if(date){
+            let sql = `SELECT * FROM histories 
+                WHERE idm = ? AND date_in = ?`;
+            db.all(sql, [idm], (err, rows)=>{
+                if(err) {
+                    return reject(err);
+                }
+                resolve(rows);
+            })
+
+        }else{
+            let sql = `SELECT * FROM histories 
+                WHERE idm = ? AND date_in = date(CURRENT_DATE)`;
+            db.all(sql, [idm], (err, rows)=>{
+                if(err) {
+                    return reject(err);
+                }
+                resolve(rows);
+            })
+
+        }
+
+    });
+}
+const selectInRoomHistoriesByDate = async (_, date) => {
+    //console.log('selectInRoomHistoriesByDate', date);
+    return new Promise((resolve, reject) => {
+        let sql = `SELECT
+                histories.fcno, 
+                cards.name,cards.kana,
+                histories.date_in, 
+                histories.date_out 
+                FROM histories
+                LEFT OUTER JOIN cards 
+                WHERE histories.date_in = date(?) AND histories.fcno = cards.fcno
+                ORDER BY histories.fcno ASC;`;
+        db.all(sql, [date], (err, rows)=>{
             if(err) {
                 return reject(err);
             }
@@ -395,6 +429,7 @@ export const pasoriDb = {
     releaseIdm, releaseIdm,
     selectCardsAll: selectCardsAll,
     selectHistoriesAll: selectHistoriesAll,
+    selectInRoomHistoriesByDate:selectInRoomHistoriesByDate,
     selectCardsWithCondition: selectCardsWithCondition,
     selectCardsByIdm: selectCardsByIdm,
     selectCardsByFcno: selectCardsByFcno,

@@ -123,7 +123,20 @@ window.addEventListener("DOMContentLoaded", () => {
     const pasoriModal_members_content = document.getElementById('pasoriModal_members_content');
     
     const pasoriModal_members_edit_content = document.getElementById('pasoriModal_members_edit_content');
-
+    const viewingManager = (content) => {
+        const viewer = [
+            modalManager,
+            modalMembers,
+            pasoriModal_histories,
+        ]
+        for(const _v of viewer){
+            if(content.id == _v.id){
+                _v.style.display = 'block';
+            }else{
+                _v.style.display = 'none';
+            }
+        }
+    }
     const myConfirm = (text) => {
         p.textContent = text;
         alt.style.display="block";
@@ -400,39 +413,46 @@ window.addEventListener("DOMContentLoaded", () => {
     let nowAppGeneralHandling = false; // 初期値
     let nowAppMembersHandling = false;
     ipcRenderer.on('app-manager-handling', async ()=>{ 
+
         nowAppManagerHandling = true;
         nowAppGeneralHandling = false;
         nowAppMembersHandling = false;
         modal.style.display = 'none';
-        modalManager.style.display = 'block';
-        modalMembers.style.display = 'none';
+        viewingManager(modalManager);
+        //modalManager.style.display = 'block';
+        //modalMembers.style.display = 'none';
     })
     ipcRenderer.on('app-general-handling', async ()=>{ 
+        //pasoriModal_histories.style.display = 'none';
         nowAppManagerHandling = false;
         nowAppGeneralHandling = true;
         nowAppMembersHandling = false;
         //console.log('managing=', managing);
+        viewingManager(modal);
         modal.style.display = 'none';
-        modalManager.style.display = 'none';
-        modalMembers.style.display = 'none';
+        //modalManager.style.display = 'none';
+        //modalMembers.style.display = 'none';
     })
-    ipcRenderer.on('app-general-stop-handling', async ()=>{ 
+    ipcRenderer.on('app-general-stop-handling', async ()=>{
+        //pasoriModal_histories.style.display = 'none';
         nowAppManagerHandling = false;
         nowAppGeneralHandling = false;
         nowAppMembersHandling = false;
         //console.log('managing=', managing);
+        viewingManager(modal);
         modal.style.display = 'none';
-        modalManager.style.display = 'none';
-        modalMembers.style.display = 'none';
+        //modalManager.style.display = 'none';
+        //modalMembers.style.display = 'none';
     })
     const app_members_handling = async() => {
         nowAppManagerHandling = false;
         nowAppGeneralHandling = false;
         nowAppMembersHandling = true;
         //console.log('managing=', managing);
+        viewingManager(modalMembers);
         modal.style.display = 'none';
-        modalManager.style.display = 'none';
-        modalMembers.style.display = 'block';
+        //modalManager.style.display = 'none';
+        //modalMembers.style.display = 'block';
         pasoriModal_members_content.style.display = 'block';
         pasoriModal_members_edit_content.style.display = 'none';
         const cards = await appCardHandler.getAll();
@@ -483,6 +503,8 @@ window.addEventListener("DOMContentLoaded", () => {
         }        
     }
     ipcRenderer.on('app-members-handling', async ()=>{
+        //pasoriModal_histories.style.display = 'none';
+        viewingManager(modalMembers);
         await app_members_handling();
     })
     memberTable.addEventListener('click', async (e)=>{
@@ -588,6 +610,62 @@ window.addEventListener("DOMContentLoaded", () => {
     app_version_yes.addEventListener('click', ()=>{
         app_version.style.display = 'none';
     });
+
+    const pasoriModal_histories = document.querySelector('#pasoriModal_histories');
+    pasoriModal_histories.style.display = 'none';
+    ipcRenderer.on('app-histories-handling', async ()=> {
+        viewingManager(pasoriModal_histories);
+        if(app_version.style.display == 'none') {
+            pasoriModal_histories.style.display = 'block';
+        }
+    })
+    const histories_inputDate = document.querySelector('#histories_inputDate');
+    const histories_dateResult = document.querySelector('#histories_dateResult');
+    const histories_table = document.querySelector('#histories_table');
+    histories_inputDate.addEventListener("change", async (e) => {
+        const _date = e.target.value;
+        histories_dateResult.textContent = _date;
+        const histories_body = histories_table.tBodies[1];
+        histories_body.innerHTML = '';
+        const _histories = await ipcRenderer.invoke('selectInRoomHistoriesByDate',_date);
+        let rowIdx = 0
+        for(const _row of _histories){
+            rowIdx += 1;
+            const row = histories_body.insertRow(-1);
+            let colomnIdx = 0
+            // NO
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = String(rowIdx).padStart(4,'0');
+            }
+            // FCNO
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = _row.fcno;
+            }
+            // 名前
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = _row.name;
+            }
+            // カナ
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = _row.kana;
+            }
+            // 入室
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = _row.date_in;
+            }
+            // 退室
+            {
+                const cell = row.insertCell(colomnIdx++);
+                cell.textContent = _row.date_out;
+            }
+
+        }
+    })
 });
 
 // メンバー管理
