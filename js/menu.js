@@ -3,6 +3,7 @@ const CARD_MANAGE = '#CardManage';
 const GENERAL = '#Genaral';
 const GENERAL_STOP = '#Genaral_STOP';
 const MEMBERS = '#MEMBERS';
+const DEV_TOOL = "#DEV_TOOL";
 const template = [
     { 
         label: '操作', 
@@ -39,6 +40,14 @@ const template = [
                     toManager();
                 }
             },
+            {
+                label: '開発者ツール',
+                id: DEV_TOOL,
+                enabled: true,
+                click: () => {
+                    openDevTool();
+                }
+            }
 
         ] 
     },
@@ -83,6 +92,11 @@ const toMember = () => {
     const browserWindow = BrowserWindow.getFocusedWindow();
     browserWindow.send(APP_MEMBERS_HANDLING);
 }
+const openDevTool = () => {
+    const browser = BrowserWindow.getFocusedWindow();
+    browser.webContents.openDevTools(); // 開発者ツールを表示
+}
+
 // macOS では "アプリメニュー" が必要
 if (process.platform === 'darwin') template.unshift({ role: 'appMenu' });
 
