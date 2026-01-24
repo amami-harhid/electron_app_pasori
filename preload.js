@@ -576,6 +576,18 @@ window.addEventListener("DOMContentLoaded", () => {
     add_new_member.addEventListener('click',async ()=>{
         await editCard();
     });
+
+    const app_version = document.getElementById('app_version_modal');
+    app_version.style.display = 'none';
+    ipcRenderer.on('app-version-handling', async (_, version)=>{
+        const app_version_view = document.getElementById('app_version_view');
+        app_version_view.innerHTML = `version=[${version}]`;
+        app_version.style.display = 'block';
+    })
+    const app_version_yes = document.getElementById('app_version_yes');
+    app_version_yes.addEventListener('click', ()=>{
+        app_version.style.display = 'none';
+    });
 });
 
 // メンバー管理

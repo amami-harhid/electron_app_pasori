@@ -16,6 +16,7 @@ if(Startup) {
 }
 const pasori_ready = (device_name) =>{
     //console.log('pasori_ready', device_name)
+        // APP Version 通知
 }
 const pasori_card_touch = (idm) =>{
     //console.log('pasori_card_touch')
@@ -71,6 +72,7 @@ function createWindow() {
     //mainWindow.setIgnoreMouseEvents(true, { forward: true }); // マウス無効にすると閉じることができない。
     mainWindow.moveTop();
     Reader.win = mainWindow;
+
     return mainWindow;
 };
 
@@ -83,7 +85,6 @@ if (!gotTheLock) {
 }else{
 
     app.whenReady().then(async () => {
-
         createWindow();
 
         // メインへのハンドラー定義
@@ -102,8 +103,6 @@ if (!gotTheLock) {
         });
         // Config TEST_DATA = trueのときテストデータで初期化する
         initDb();
-
-
 
     });
 

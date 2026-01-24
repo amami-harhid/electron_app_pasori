@@ -89,7 +89,7 @@ h1 {
     position: relative;
     box-shadow: 0 5px 15px rgba(0.7,0.7,0.7,0.1);
 }
-#confirm{
+.confirm{
     display: none;
     position: fixed;
     background: rgba(0,0,0,.3);
@@ -99,7 +99,7 @@ h1 {
     right: 0;
     z-index: 100;
 }
-#confirm div{
+.confirm div{
     border: 5px double purple;
     box-shadow: 5px 5px 3px rgba(0,0,0,.2);
     border-radius: 5%;
@@ -131,4 +131,13 @@ h1 {
 .membersTable th, td {
     font-size: 80%;
     border: 1px dashed blue;
+}
+
+.app_version {
+    position: absolute;
+    top: 80%;
+    left: 0;
+    width: 100%;
+    height: 20%;
+
 }

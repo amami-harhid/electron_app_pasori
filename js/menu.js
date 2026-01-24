@@ -1,9 +1,11 @@
 import { Menu, BrowserWindow } from 'electron';
+import { appVersion } from './version.js';
 const CARD_MANAGE = '#CardManage';
 const GENERAL = '#Genaral';
 const GENERAL_STOP = '#Genaral_STOP';
 const MEMBERS = '#MEMBERS';
 const DEV_TOOL = "#DEV_TOOL";
+const APP_VERSION = "#APP_VERSION";
 const template = [
     { 
         label: '操作', 
@@ -40,6 +42,11 @@ const template = [
                     toManager();
                 }
             },
+        ] 
+    },
+    { 
+        label: 'HELP', 
+        submenu: [
             {
                 label: '開発者ツール',
                 id: DEV_TOOL,
@@ -47,7 +54,15 @@ const template = [
                 click: () => {
                     openDevTool();
                 }
-            }
+            },
+            {
+                label: 'VERSION',
+                id: APP_VERSION,
+                enabled: true,
+                click: () => {
+                    viewAppVersion();
+                }
+            },
 
         ] 
     },
@@ -96,7 +111,13 @@ const openDevTool = () => {
     const browser = BrowserWindow.getFocusedWindow();
     browser.webContents.openDevTools(); // 開発者ツールを表示
 }
+const viewAppVersion = () => {
+    const version = appVersion();
+    const browser = BrowserWindow.getFocusedWindow();
+    browser.webContents.send('app-version-handling', version);
 
+    // app-version-handling
+}
 // macOS では "アプリメニュー" が必要
 if (process.platform === 'darwin') template.unshift({ role: 'appMenu' });
 
