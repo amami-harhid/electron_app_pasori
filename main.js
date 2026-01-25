@@ -6,9 +6,6 @@ import { Main_logger } from "./js/main_logger.js";
 
 import {Reader} from "./js/card/card.js"
 import {mailApi} from './js/bridge/mailApi.js';
-//import {handle_mail_methods } from './js/mail/sendMail.js';
-//import {pasoriDb, handle_db_methods} from './js/db/dbMethods.js'
-//import {handle_page_methods} from './js/page.js';
 import {dbApi} from './js/bridge/pasoriDbApi.js';
 import {pageApi} from './js/bridge/pageApi.js';
 
