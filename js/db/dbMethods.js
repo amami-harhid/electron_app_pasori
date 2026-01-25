@@ -196,7 +196,7 @@ const selectInRoomHistoriesByDate = async (_, date) => {
                 FROM histories
                 LEFT OUTER JOIN cards 
                 WHERE histories.date_in = date(?) AND histories.fcno = cards.fcno
-                ORDER BY histories.fcno ASC;`;
+                ORDER BY cards.kana ASC;`;
         db.all(sql, [date], (err, rows)=>{
             if(err) {
                 return reject(err);
