@@ -1,6 +1,5 @@
 import { NFC } from "./nfc-pcsc/index.js";
-//import {NFC} from "nfc-pcsc";
-import { Main_logger } from "./js/main_logger.js";
+import { Main_logger } from "../main_logger.js";
 
 const nfc = new NFC();
 

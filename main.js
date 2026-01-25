@@ -1,10 +1,10 @@
 import { app, BrowserWindow, Menu } from 'electron';
-import { menu } from './js/menu.js';
+import { menu } from './js/page/menu.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { Main_logger } from "./js/main_logger.js";
 
-import {Reader} from "./card.js"
+import {Reader} from "./js/card/card.js"
 import {mailApi} from './js/bridge/mailApi.js';
 //import {handle_mail_methods } from './js/mail/sendMail.js';
 //import {pasoriDb, handle_db_methods} from './js/db/dbMethods.js'

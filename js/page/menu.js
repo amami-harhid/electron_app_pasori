@@ -1,5 +1,5 @@
 import { Menu, BrowserWindow } from 'electron';
-import { appVersion } from './version.js';
+import { appVersion } from '../version.js';
 const CARD_MANAGE = '#CardManage';
 const GENERAL = '#Genaral';
 const GENERAL_STOP = '#Genaral_STOP';

@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 const {mailApi} = require('./js/bridge/mailApi.js');
-const Sound = require('./js/sounds.js');
+const Sound = require('./js/page/sounds.js');
 
 const initPage = ()=>{
     // モーダル非表示
