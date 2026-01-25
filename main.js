@@ -5,9 +5,13 @@ import path from 'path';
 import { Main_logger } from "./js/main_logger.js";
 
 import {Reader} from "./card.js"
-import {handle_mail_methods } from './js/mail/sendMail.js';
-import {pasoriDb, handle_db_methods} from './js/db/dbMethods.js'
-import {handle_page_methods} from './js/page.js';
+import {mailApi} from './js/bridge/mailApi.js';
+//import {handle_mail_methods } from './js/mail/sendMail.js';
+//import {pasoriDb, handle_db_methods} from './js/db/dbMethods.js'
+//import {handle_page_methods} from './js/page.js';
+import {dbApi} from './js/bridge/pasoriDbApi.js';
+import {pageApi} from './js/bridge/pageApi.js';
+
 import {initDb} from './js/db/dbMethods.js'
 import Startup from 'electron-squirrel-startup';
 if(Startup) {
@@ -59,7 +63,7 @@ function createWindow() {
             contextIsolation: true, 
             // サンドボックス化されたプロセスは、CPUサイクルとメモリのみを使用でき、
             // 追加の権限が必要な操作は専用の通信チャネルを使用してメインプロセスに委譲されます
-            sandbox: false 
+            sandbox: false
         },
         autoHideMenuBar: false, // true:メニュー非表示
     });
@@ -88,9 +92,9 @@ if (!gotTheLock) {
         createWindow();
 
         // メインへのハンドラー定義
-        handle_db_methods();
-        handle_mail_methods();
-        handle_page_methods();
+        pageApi.ipcMainHandler();
+        dbApi.ipcMainHandler();
+        mailApi.ipcMainHandler();
 
         //win.webContents.send('test-message', 'ponpon');
         app.on("activate", () => {
@@ -108,7 +112,7 @@ if (!gotTheLock) {
 
     // 全ウインドウを閉じた時にアプリを終了する (Windows & Linux)
     app.on("window-all-closed", () => {
-        pasoriDb.dbClose();
+        dbApi.pasoriDb.dbClose();
         if (process.platform !== "darwin") {
             //console.log("app.quit()")
             Main_logger.debug('app.quit()');

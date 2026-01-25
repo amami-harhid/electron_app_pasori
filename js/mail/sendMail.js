@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { ipcMain } from 'electron';
+//import { ipcMain } from 'electron';
 import { ApConfig } from '../conf.js';
 import { Main_logger } from "../main_logger.js";
 
@@ -75,6 +75,7 @@ const SEND_MAILER = async ( eve,
     }
 }
 
+/*
 export const handle_mail_methods = () => {
     ipcMain.handle("mailer:send_mail", SEND_MAILER);
     ipcMain.handle("mailer:get_config", ()=>{
@@ -84,6 +85,7 @@ export const handle_mail_methods = () => {
         }
     });
 }
+*/
 
 export const Mailer = {
     subject: MAIL_SUBJECT,

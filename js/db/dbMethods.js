@@ -1,15 +1,23 @@
-import { app, ipcMain } from 'electron';
+import electron from 'electron';
 import {ApConfig} from '../conf.js';
 import sqlite3 from 'sqlite3';
 
-const DB_PATH = "DB_PATH";
-const db_path = (ApConfig.has(DB_PATH))?
+// Render 側でimportされるとき,electron.app=undefinedである。
+const app = electron.app;
+let db;
+let testData = false;
+if(app) {
+    const DB_PATH = "DB_PATH";
+    const db_path = (ApConfig.has(DB_PATH))?
     ApConfig.get(DB_PATH): app.getPath('userData');
-//console.log("db_path=",db_path)
-const db = new sqlite3.Database(`${db_path}/pasori_card.db`);
+    //console.log("db_path=",db_path)
+    db = new sqlite3.Database(`${db_path}/pasori_card.db`);
 
-const TEST_DATA = "TEST_DATA";
-const testData = (ApConfig.has(TEST_DATA))?ApConfig.get(TEST_DATA):false;
+    const TEST_DATA = "TEST_DATA";
+    testData = (ApConfig.has(TEST_DATA))?ApConfig.get(TEST_DATA):false;
+
+}
+
 
 const createCards = (_)=>{
     return new Promise((resolve, reject) => {
@@ -413,7 +421,7 @@ const dbClose = () => {
     db.close();
 }
 
-export const pasoriDb = {
+export const pasoriDbMain = {
     createCards: createCards,
     createHistories: createHistories,
     dailyClean:dailyClean,
@@ -437,13 +445,15 @@ export const pasoriDb = {
     update: update,
     updateInRoom: updateInRoom,
 }
+/* 
 // DBメソッドをレンダラー側で使用可能にする
-export const handle_db_methods = ()=>{
-    for( const name in pasoriDb) {
-        const method = pasoriDb[name];
+export const ipcMainHandler = ()=>{
+    for( const name in pasoriDbMain) {
+        const method = pasoriDbMain[name];
         ipcMain.handle(name, method);
     }
 };
+*/
 
 
 export const initDb = async () => {
