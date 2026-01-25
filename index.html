@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self';">
     <title>Now Stating up!</title>
     <link rel="stylesheet" href="./css/style.css"/>
-    <script src="./js/page/pageInit.js"></script>
+    <script src="./js/page/page_onload.js"></script>
   </head>
   <body>
     <!-- 背景部 -->
@@ -39,7 +39,7 @@
     </div>
     <div id="confirm" class="confirm">
       <div>
-        <p></p>
+        <p id="confirm_p"></p>
         <button id="confirm-yes">はい</button><button id="confirm-no">いいえ</button>
       </div>
     </div>
@@ -90,7 +90,7 @@
     <div id="pasoriModal_histories" class="modal_histories">
       <div id="pasoriModal_members_content" class="modal-content">
         <label for="histories_inputDate">日付を選択してください:</label>
-        <input type="date" id="histories_inputDate">
+        <input type="date" id="histories_inputDate">&nbsp;<button id="histories_reload">ﾘﾛｰﾄﾞ</button>
         <p>選択された日付: <span id="histories_dateResult"></span></p>
         <table id="histories_table" class="appTable">
           <tbody>

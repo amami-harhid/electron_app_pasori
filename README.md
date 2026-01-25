@@ -4,7 +4,7 @@ IC-Card entry and exit system
 # Summary
 - Desktop application using Electron
 - Detect card touches using the Pasori card reader
-- Send an email to the address linked to the IC card
+- Send email to the registered address using the IC card's IDM
 - Enable to view the entry and exit history
 - Card users can be added, edited, and deleted
 
